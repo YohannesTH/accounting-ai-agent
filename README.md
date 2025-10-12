@@ -24,7 +24,8 @@ This automation streamlines bookkeeping by processing **audio, image, and docume
 3. **Processing Path:**
    - Audio → Download → Transcribe → AI Agent → Append to Google Sheets  
    - Image → Download → Analyze Image → AI Agent → Append to Google Sheets  
-   - Document → Download → Analyze Document → AI Agent → Append to Google Sheets  
+   - Document → Download → Analyze Document → AI Agent → Append to Google Sheets
+   - Text → AI Agent → Append to Google Sheets   
 4. **Response:** Sends confirmation or summary message back via Telegram.
 
 ---
