@@ -1,0 +1,1508 @@
+{
+  "name": "accounting-ai-agent",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -480,
+        304
+      ],
+      "id": "75f6e944-c5d4-48d8-adcd-104b0e67ef3f",
+      "name": "Telegram Trigger",
+      "webhookId": "e2af3367-91de-4677-a6cb-2abd5c47c341",
+      "credentials": {
+        "telegramApi": {
+          "id": "i0OPO98f5Oa1cv8Z",
+          "name": "accounting-ai-agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.voice.file_id }}",
+                    "rightValue": "audio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "d926d1aa-6f2f-478c-9c14-f02eac6741b6"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "58871f74-ee26-46be-abd4-a9f75ad0734e",
+                    "leftValue": "={{ $json.message.photo[0].file_id }}",
+                    "rightValue": "image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "74c80c7a-1a2f-4a28-858b-7e62881029c9",
+                    "leftValue": "={{ $json.message.document.file_id }}",
+                    "rightValue": "document",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "document"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "1573b588-8284-433b-8485-529224bf1a16",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -192,
+        272
+      ],
+      "id": "1527a6e5-3c40-4c60-803b-31fbf24f5b36",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -224
+      ],
+      "id": "c71d2b7b-7bd0-425a-903e-4f5316564ee7",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "kkxO3ghbvz1Lq3EY",
+          "name": "accounting-ai-agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        320,
+        -224
+      ],
+      "id": "119c59c1-404a-4ce0-a156-158abe6c9b96",
+      "name": "Download audio",
+      "webhookId": "366e0d28-0150-4244-8bb8-aa9a0daede36",
+      "credentials": {
+        "telegramApi": {
+          "id": "i0OPO98f5Oa1cv8Z",
+          "name": "accounting-ai-agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "text": "Could you extract the following information from the invoice?",
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        560,
+        112
+      ],
+      "id": "d23e46dc-bdef-446e-9601-f8cc1554db7d",
+      "name": "Analyze an image",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "kkxO3ghbvz1Lq3EY",
+          "name": "accounting-ai-agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "document",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "text": "Could you extract the following information from the invoice?",
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        560,
+        448
+      ],
+      "id": "f6fc4d7a-5922-46a6-99eb-ec83772194ef",
+      "name": "Analyze document",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "kkxO3ghbvz1Lq3EY",
+          "name": "accounting-ai-agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.content.parts[0].text }}",
+        "options": {
+          "systemMessage": "=You are an accounting assistant. \nYour task is to extract structured transaction data from the user’s message. \nThe user will send short notes like “I spent 250 birr at Café XYZ yesterday”.\n\nAlways output in JSON format with the following keys:\n- amount: number only, no currency symbols\n- currency: extracted from text if present, else \"ETB\"\n- vendor: name of the shop/place/vendor\n- date: if user mentions it, use that date (YYYY-MM-DD). If not, use today’s date.\n- category: guess the category (e.g., Food, Transport, Groceries, Entertainment, Other)\n\nIf the customer didn't provide date, use today's date. Today is {{ $now }}\n\nExample:\nInput: \"I spent $10 on lunch at McDonald's\"\nOutput:\n{\n  \"amount\": 10,\n  \"currency\": \"USD\",\n  \"vendor\": \"McDonald's\",\n  \"date\": \"2025-10-08\",\n  \"category\": \"Food\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        784,
+        -224
+      ],
+      "id": "de5c1e7e-9f6a-452c-a4ba-c5e5126e68cd",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        736,
+        -32
+      ],
+      "id": "e4c9fe24-f1b2-4d05-8fbf-dfa333059593",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "kkxO3ghbvz1Lq3EY",
+          "name": "accounting-ai-agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.content.parts[0].text }}",
+        "options": {
+          "systemMessage": "=You are an accounting assistant. \nYour task is to extract structured transaction data from the user’s message. \nThe user will send short notes like “I spent 250 birr at Café XYZ yesterday”.\n\nAlways output in JSON format with the following keys:\n- amount: number only, no currency symbols\n- currency: extracted from text if present, else \"ETB\"\n- vendor: name of the shop/place/vendor\n- date: if user mentions it, use that date (YYYY-MM-DD). If not, use today’s date.\n- category: guess the category (e.g., Food, Transport, Groceries, Entertainment, Other)\n\nIf the customer didn't provide date, use today's date. Today is {{ $now }}\n\nExample:\nInput: \"I spent $10 on lunch at McDonald's\"\nOutput:\n{\n  \"amount\": 10,\n  \"currency\": \"USD\",\n  \"vendor\": \"McDonald's\",\n  \"date\": \"2025-10-08\",\n  \"category\": \"Food\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        784,
+        112
+      ],
+      "id": "7fd0dc7e-abee-4eb9-8b1b-b1043ace4b58",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        736,
+        304
+      ],
+      "id": "0fa42a0a-d544-4e11-a5ae-68482c925399",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "kkxO3ghbvz1Lq3EY",
+          "name": "accounting-ai-agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.content.parts[0].text }}",
+        "options": {
+          "systemMessage": "=You are an accounting assistant. \nYour task is to extract structured transaction data from the user’s message. \nThe user will send short notes like “I spent 250 birr at Café XYZ yesterday”.\n\nAlways output in JSON format with the following keys:\n- amount: number only, no currency symbols\n- currency: extracted from text if present, else \"ETB\"\n- vendor: name of the shop/place/vendor\n- date: if user mentions it, use that date (YYYY-MM-DD). If not, use today’s date.\n- category: guess the category (e.g., Food, Transport, Groceries, Entertainment, Other)\n\nIf the customer didn't provide date, use today's date. Today is {{ $now }}\n\nExample:\nInput: \"I spent $10 on lunch at McDonald's\"\nOutput:\n{\n  \"amount\": 10,\n  \"currency\": \"USD\",\n  \"vendor\": \"McDonald's\",\n  \"date\": \"2025-10-08\",\n  \"category\": \"Food\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        448
+      ],
+      "id": "f0962c30-5d59-4c62-9a50-41d973e32511",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Create a summary reply (like the instruction you showed earlier: concise, no greeting/footer, row-by-row).\n\nExample:\n\nAmount: 250 birr\nVendor: Café XYZ\nDate: 2025-10-08\nCategory: Food\n✅ Recorded into Google Sheet"
+            }
+          ]
+        },
+        "options": {
+          "systemMessage": "=We just analysed an invoice and got following response:  {{ JSON.stringify($json) }}  Please make a summary and send it back to user, and tell him we sucessfully recorded into the google sheet.    \n\nThe reply is just a whatsapp message, dont put greeting and footer, separete rows for easier reading."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        1472,
+        -224
+      ],
+      "id": "9a030a51-ef86-4ce3-b8c4-2388bff8e3c7",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "kkxO3ghbvz1Lq3EY",
+          "name": "accounting-ai-agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }} ",
+        "text": "={{ $json.content.parts[0].text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1872,
+        -224
+      ],
+      "id": "f480cb0e-41c1-4c06-979c-b46f2b242f9e",
+      "name": "Send a text message",
+      "webhookId": "1d86e06f-e077-4dba-a526-9828a106d0f0",
+      "credentials": {
+        "telegramApi": {
+          "id": "i0OPO98f5Oa1cv8Z",
+          "name": "accounting-ai-agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        720,
+        656
+      ],
+      "id": "5077ec19-7bee-4820-8a7d-bb1583f6bee3",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "kkxO3ghbvz1Lq3EY",
+          "name": "accounting-ai-agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the AI Agent output (string)\nlet raw = $input.first().json.output;\n// Remove markdown code fences (supporting ```json or ``` and ending ```) with regex\nraw = raw.replace(/^\\s*```(?:json)?/i, '').replace(/```\\s*$/, '').trim();\nlet data;\ntry {\n  data = JSON.parse(raw);\n} catch (e) {\n  throw new Error(\"Invalid JSON from AI Agent: \" + raw);\n}\n\n// Return structured fields\nreturn [\n  {\n    json: {\n      amount: data.amount,\n      currency: data.currency,\n      vendor: data.vendor,\n      date: data.date,\n      category: data.category\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1136,
+        -224
+      ],
+      "id": "b577806b-effe-4f8c-bcab-4f4882ac7d9f",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.photo[0].file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        320,
+        112
+      ],
+      "id": "412dd40d-8ecf-44e6-b969-3b3878915593",
+      "name": "Download image",
+      "webhookId": "384cb414-7e66-4973-b598-839c9ba7044a",
+      "credentials": {
+        "telegramApi": {
+          "id": "i0OPO98f5Oa1cv8Z",
+          "name": "accounting-ai-agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.document.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        320,
+        448
+      ],
+      "id": "1ee34aa8-ddb1-4876-8e61-7c7401c67ad4",
+      "name": "Download document",
+      "webhookId": "73c75993-3786-4f56-ab4a-2aff093600e1",
+      "credentials": {
+        "telegramApi": {
+          "id": "i0OPO98f5Oa1cv8Z",
+          "name": "accounting-ai-agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "10vpgZHKPZK2awQE0cYJ8ifshIg5jZm-08XRdd6PRGIE",
+          "mode": "list",
+          "cachedResultName": "transaction",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10vpgZHKPZK2awQE0cYJ8ifshIg5jZm-08XRdd6PRGIE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10vpgZHKPZK2awQE0cYJ8ifshIg5jZm-08XRdd6PRGIE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Category": "={{ $json.category }}",
+            "Date": "={{ $json.date }}",
+            "Vendor": "={{ $json.vendor }}",
+            "Currency": "={{ $json.currency }}",
+            "Amount": "={{ $json.amount }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Currency",
+              "displayName": "Currency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Vendor",
+              "displayName": "Vendor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1520,
+        -48
+      ],
+      "id": "eac702f5-9493-4e7e-ad75-ef34198e1b05",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "pScysDvpQgQ9tugy",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the AI Agent output (string)\nlet raw = $input.first().json.output;\n// Remove markdown code fences (supporting ```json or ``` and ending ```) with regex\nraw = raw.replace(/^\\s*```(?:json)?/i, '').replace(/```\\s*$/, '').trim();\nlet data;\ntry {\n  data = JSON.parse(raw);\n} catch (e) {\n  throw new Error(\"Invalid JSON from AI Agent: \" + raw);\n}\n\n// Return structured fields\nreturn [\n  {\n    json: {\n      amount: data.amount,\n      currency: data.currency,\n      vendor: data.vendor,\n      date: data.date,\n      category: data.category\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1136,
+        112
+      ],
+      "id": "bddecce3-ae2d-46b6-9c0a-9e27d53bcdf4",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "Create a summary reply (like the instruction you showed earlier: concise, no greeting/footer, row-by-row).\n\nExample:\n\nAmount: 250 birr\nVendor: Café XYZ\nDate: 2025-10-08\nCategory: Food\n✅ Recorded into Google Sheet"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        1472,
+        112
+      ],
+      "id": "9bcaa4ea-79dd-4fef-b96f-f17efc7e0620",
+      "name": "Message a model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "kkxO3ghbvz1Lq3EY",
+          "name": "accounting-ai-agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "10vpgZHKPZK2awQE0cYJ8ifshIg5jZm-08XRdd6PRGIE",
+          "mode": "list",
+          "cachedResultName": "transaction",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10vpgZHKPZK2awQE0cYJ8ifshIg5jZm-08XRdd6PRGIE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10vpgZHKPZK2awQE0cYJ8ifshIg5jZm-08XRdd6PRGIE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Amount": "={{ $json.amount }}",
+            "Currency": "={{ $json.currency }}",
+            "Vendor": "={{ $json.vendor }}",
+            "Date": "={{ $json.date }}",
+            "Category": "={{ $json.category }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Currency",
+              "displayName": "Currency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Vendor",
+              "displayName": "Vendor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1520,
+        288
+      ],
+      "id": "513affc8-3caa-4e25-b8d4-b5597d448ea0",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "pScysDvpQgQ9tugy",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }} ",
+        "text": "={{ $json.content.parts[0].text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1872,
+        112
+      ],
+      "id": "599f7a0c-cc99-46bd-9e47-2e6c0c9caa52",
+      "name": "Send a text message1",
+      "webhookId": "787a8102-231b-438e-bb53-da009f4a61d2",
+      "credentials": {
+        "telegramApi": {
+          "id": "i0OPO98f5Oa1cv8Z",
+          "name": "accounting-ai-agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the AI Agent output (string)\nlet raw = $input.first().json.output;\n// Remove markdown code fences (supporting ```json or ``` and ending ```) with regex\nraw = raw.replace(/^\\s*```(?:json)?/i, '').replace(/```\\s*$/, '').trim();\nlet data;\ntry {\n  data = JSON.parse(raw);\n} catch (e) {\n  throw new Error(\"Invalid JSON from AI Agent: \" + raw);\n}\n\n// Return structured fields\nreturn [\n  {\n    json: {\n      amount: data.amount,\n      currency: data.currency,\n      vendor: data.vendor,\n      date: data.date,\n      category: data.category\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1136,
+        448
+      ],
+      "id": "b9150c2f-f32f-44a7-ba23-290d90ab2702",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "Create a summary reply (like the instruction you showed earlier: concise, no greeting/footer, row-by-row).\n\nExample:\n\nAmount: 250 birr\nVendor: Café XYZ\nDate: 2025-10-08\nCategory: Food\n✅ Recorded into Google Sheet"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        1472,
+        448
+      ],
+      "id": "1b3bf21a-38c9-410e-a427-a0fef76165de",
+      "name": "Message a model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "kkxO3ghbvz1Lq3EY",
+          "name": "accounting-ai-agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }} ",
+        "text": "={{ $json.content.parts[0].text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1888,
+        448
+      ],
+      "id": "05e1842d-0160-47a4-a954-9c6601cf6635",
+      "name": "Send a text message2",
+      "webhookId": "87272b95-2134-4098-919e-7daf72aaaeaa",
+      "credentials": {
+        "telegramApi": {
+          "id": "i0OPO98f5Oa1cv8Z",
+          "name": "accounting-ai-agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "10vpgZHKPZK2awQE0cYJ8ifshIg5jZm-08XRdd6PRGIE",
+          "mode": "list",
+          "cachedResultName": "transaction",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10vpgZHKPZK2awQE0cYJ8ifshIg5jZm-08XRdd6PRGIE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10vpgZHKPZK2awQE0cYJ8ifshIg5jZm-08XRdd6PRGIE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Amount": "={{ $json.amount }}",
+            "Currency": "={{ $json.currency }}",
+            "Vendor": "={{ $json.vendor }}",
+            "Date": "={{ $json.date }}",
+            "Category": "={{ $json.category }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Currency",
+              "displayName": "Currency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Vendor",
+              "displayName": "Vendor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1568,
+        688
+      ],
+      "id": "75ebe06e-cf0d-4176-9d61-4651c5d34328",
+      "name": "Append row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "pScysDvpQgQ9tugy",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').first().json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        880,
+        -32
+      ],
+      "id": "2eeffc31-07b6-4f44-85b4-7c8b6eff357f",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').first().json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        880,
+        304
+      ],
+      "id": "ff6e175e-3345-466f-b3c2-be838abe311d",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').first().json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        864,
+        656
+      ],
+      "id": "5084af53-f0f5-425e-b8c7-359e6d5284d3",
+      "name": "Simple Memory2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=You are an accounting assistant. \nYour task is to extract structured transaction data from the user’s message. \nThe user will send short notes like “I spent 250 birr at Café XYZ yesterday”.\n\nAlways output in JSON format with the following keys:\n- amount: number only, no currency symbols\n- currency: extracted from text if present, else \"ETB\"\n- vendor: name of the shop/place/vendor\n- date: if user mentions it, use that date (YYYY-MM-DD). If not, use today’s date.\n- category: guess the category (e.g., Food, Transport, Groceries, Entertainment, Other)\n\nIf the customer didn't provide date, use today's date. Today is {{ $now }}\n\nExample:\nInput: \"I spent $10 on lunch at McDonald's\"\nOutput:\n{\n  \"amount\": 10,\n  \"currency\": \"USD\",\n  \"vendor\": \"McDonald's\",\n  \"date\": \"2025-10-08\",\n  \"category\": \"Food\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        304,
+        816
+      ],
+      "id": "348a340e-2c66-44f9-be47-203d8da34fa8",
+      "name": "AI Agent3"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        176,
+        1056
+      ],
+      "id": "3ab14468-f254-40d5-aa4f-c6af81dbcc05",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "kkxO3ghbvz1Lq3EY",
+          "name": "accounting-ai-agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').first().json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        368,
+        1056
+      ],
+      "id": "4c851773-b3ce-43d7-873c-083e0bc70139",
+      "name": "Simple Memory3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the AI Agent output (string)\nlet raw = $input.first().json.output;\n// Remove markdown code fences (supporting ```json or ``` and ending ```) with regex\nraw = raw.replace(/^\\s*```(?:json)?/i, '').replace(/```\\s*$/, '').trim();\nlet data;\ntry {\n  data = JSON.parse(raw);\n} catch (e) {\n  throw new Error(\"Invalid JSON from AI Agent: \" + raw);\n}\n\n// Return structured fields\nreturn [\n  {\n    json: {\n      amount: data.amount,\n      currency: data.currency,\n      vendor: data.vendor,\n      date: data.date,\n      category: data.category\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        816
+      ],
+      "id": "898e84a0-f647-47df-b49f-daa29b69767f",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Create a summary reply (like the instruction you showed earlier: concise, no greeting/footer, row-by-row).\n\nExample:\n\nAmount: 250 birr\nVendor: Café XYZ\nDate: 2025-10-08\nCategory: Food\n✅ Recorded into Google Sheet",
+              "role": "model"
+            },
+            {
+              "content": "={{ $json.amount }}{{ $json.currency }}{{ $json.vendor }}{{ $json.date }}{{ $json.category }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        896,
+        816
+      ],
+      "id": "6b37f4ef-4bba-4134-b345-28af857f5391",
+      "name": "Message a model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "kkxO3ghbvz1Lq3EY",
+          "name": "accounting-ai-agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "10vpgZHKPZK2awQE0cYJ8ifshIg5jZm-08XRdd6PRGIE",
+          "mode": "list",
+          "cachedResultName": "transaction",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10vpgZHKPZK2awQE0cYJ8ifshIg5jZm-08XRdd6PRGIE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10vpgZHKPZK2awQE0cYJ8ifshIg5jZm-08XRdd6PRGIE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Amount": "={{ $json.amount }}",
+            "Currency": "={{ $json.currency }}",
+            "Vendor": "={{ $json.vendor }}",
+            "Date": "={{ $json.date }}",
+            "Category": "={{ $json.category }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Currency",
+              "displayName": "Currency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Vendor",
+              "displayName": "Vendor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        928,
+        1056
+      ],
+      "id": "fb031fcc-9a5b-4081-91de-e4fd0d947bdd",
+      "name": "Append row in sheet3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "pScysDvpQgQ9tugy",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }} ",
+        "text": "={{ $json.content.parts[0].text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1248,
+        816
+      ],
+      "id": "d1db147c-4fb3-4a8e-9ed7-46a97ce31bb3",
+      "name": "Send a text message3",
+      "webhookId": "39cc76e6-d098-4589-a968-986511af62cd",
+      "credentials": {
+        "telegramApi": {
+          "id": "i0OPO98f5Oa1cv8Z",
+          "name": "accounting-ai-agent"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Download audio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download document",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download audio": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze an image": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze document": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download image": {
+      "main": [
+        [
+          {
+            "node": "Analyze an image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download document": {
+      "main": [
+        [
+          {
+            "node": "Analyze document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Message a model2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory3": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Message a model3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append row in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model3": {
+      "main": [
+        [
+          {
+            "node": "Send a text message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "30d35f5d-c0d9-4017-978a-a845ffd6322c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "14862c16d1a89cce61fa55d1de50d39ad1218193e1a4a61bf0cb3eb8d3465601"
+  },
+  "id": "3gmlosvs8TdROg7A",
+  "tags": []
+}
