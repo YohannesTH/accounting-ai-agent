@@ -51,7 +51,7 @@ This automation streamlines bookkeeping by processing **audio, image, and docume
 
 2. **Set up n8n**
    - Install n8n locally or use [n8n Cloud](https://n8n.io).  
-   - Import the workflow JSON file (if provided).  
+   - Import the workflow JSON file.  
 
 3. **Create environment variables**
    ```bash
